@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO List - From CDN</title>
+
+    <!-- TAILWIND -->
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app" class="w-100 md:w-3/5 mx-4 md:mx-auto mt-4">
+        <form @submit.prevent="handleSubmit">
+            <div class="flex space-x-4 items-center">
+                <input
+                    id="todo-input"
+                    class="
+                        py-2 px-4
+                        w-80
+                        outline-none border-2 border-gray-300 rounded-lg
+                        focus:ring-4 focus:ring-blue-400 focus:ring-offset-4
+                        flex-1
+                    "
+                    type="text"
+                    placeholder="Add text to your new todo element..."
+                    autocomplete="off"
+                    v-model="todo"
+                >
+                <button type="submit" class="bg-green-500 px-8 py-2 uppercase rounded-lg text-white">Agregar</button>
+            </div>
+
+            
+        </form>
+
+        <todo :todos="todos" class="w-100 flex flex-col space-y-4 mt-4">
+            <template v-slot:="{ todoItems }">
+                <todo-item 
+                    class="flex-1 px-4 py-3 shadow-lg border border-gray-100"
+                    v-for="{ id, text } of todoItems"
+                    :key="id">
+                    {{ text }}
+                </todo-item>
+            </template>
+        </todo>
+    </div>
+
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <!-- TODO -->
+    <script type="text/x-template" id="todo">
+        <ul class="todo">
+            <slot :todo-items="todos"></slot>
+        </ul>
+    </script>
+
+    <!-- TODO Item-->
+    <script type="text/x-template" id="todo-item">
+        <li class="todo-item">
+            <slot>{{ text }}</slot>
+        </li>
+    </script>
+
+    <script>
+        const { createApp, reactive, ref } = Vue;
+
+        const app = createApp({
+            name: 'App',
+
+            components: ['Todo', 'TodoItem'],
+
+            setup () {
+                const todo = ref('');
+                const todos = reactive([]);
+
+                const handleSubmit = () => {
+                    if (! todo) return;
+
+                    // Push the new todo to the list
+                    todos.push({
+                        id: Date.now() + Math.floor(Math.random() * 100 + 1),
+                        text: todo.value
+                    });
+
+                    // Clean the todo text
+                    todo.value = '';
+                }
+
+                return {
+                    todo,
+                    todos,
+                    handleSubmit,
+                };
+            }
+        });
+
+        app.component('Todo', {
+            template: '#todo',
+
+            props: {
+                todos: {
+                    type: Array,
+                    default: () => [],
+                }
+            },
+            
+            setup() {
+                return {}
+            }
+        });
+
+        app.component('TodoItem', {
+            template: '#todo-item',
+            
+            setup() {
+                return {}
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>
